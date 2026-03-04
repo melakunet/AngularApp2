@@ -1,0 +1,110 @@
+<div class="task-tracker-container">
+  <header class="app-header">
+    <div class="header-content">
+      <h1>📋 {{ title }}</h1>
+      <p class="subtitle">Manage your daily tasks efficiently</p>
+    </div>
+  </header>
+
+  <main class="main-content">
+    <div class="action-bar">
+      <button class="btn btn-primary" (click)="toggleAddForm()">
+        {{ showAddForm ? '✕ Cancel' : '+ Add New Task' }}
+      </button>
+
+      <div class="filter-controls">
+        <label class="checkbox-label">
+          <input type="checkbox" [(ngModel)]="filterCompleted">
+          Hide Completed Tasks
+        </label>
+      </div>
+    </div>
+
+    <div class="add-task-form" *ngIf="showAddForm">
+      <h2>Create New Task</h2>
+      
+      <div class="form-group">
+        <label for="taskTitle">Task Title *</label>
+        <input type="text" id="taskTitle" class="form-control" [(ngModel)]="newTaskTitle" placeholder="Enter task title" required>
+      </div>
+
+      <div class="form-group">
+        <label for="taskDescription">Description</label>
+        <textarea id="taskDescription" class="form-control" [(ngModel)]="newTaskDescription" placeholder="Enter task description" rows="3"></textarea>
+      </div>
+
+      <div class="form-row">
+        <div class="form-group">
+          <label for="taskDueDate">Due Date *</label>
+          <input type="date" id="taskDueDate" class="form-control" [(ngModel)]="newTaskDueDate" required>
+        </div>
+
+        <div class="form-group">
+          <label for="taskPriority">Priority</label>
+          <select id="taskPriority" class="form-control" [(ngModel)]="newTaskPriority">
+            <option value="high">High Priority</option>
+            <option value="medium">Medium Priority</option>
+            <option value="low">Low Priority</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="form-actions">
+        <button class="btn btn-success" (click)="addTask()">✓ Create Task</button>
+        <button class="btn btn-secondary" (click)="toggleAddForm()">Cancel</button>
+      </div>
+    </div>
+
+    <div class="task-list">
+      <div *ngIf="(tasks$ | async) as tasks">
+        <div class="task-summary">
+          <span class="total-tasks">Total Tasks: <strong>{{ tasks.length }}</strong></span>
+          <span class="completed-tasks">Completed: <strong>{{ getCompletedCount(tasks) }}</strong></span>
+          <span class="pending-tasks">Pending: <strong>{{ getPendingCount(tasks) }}</strong></span>
+        </div>
+
+        <div *ngIf="getFilteredTasks(tasks).length === 0" class="empty-state">
+          <div class="empty-icon">📭</div>
+          <h3>No tasks to display</h3>
+          <p>{{ filterCompleted ? 'All tasks are completed!' : 'Get started by adding your first task.' }}</p>
+        </div>
+
+        <div *ngFor="let task of getFilteredTasks(tasks)" class="task-item" [appPriorityHighlight]="task.priority">
+          <div class="task-header">
+            <div class="task-checkbox">
+              <input type="checkbox" [id]="'task-' + task.id" [checked]="task.completed" (change)="toggleTaskCompletion(task.id)">
+              <label [for]="'task-' + task.id"></label>
+            </div>
+
+            <div class="task-info" [appCompletedStrikethrough]="task.completed">
+              <h3 class="task-title">{{ task.title }}</h3>
+              <p class="task-description">{{ task.description | truncateText:80 }}</p>
+            </div>
+
+            <div class="task-actions">
+              <button class="btn-icon btn-delete" (click)="deleteTask(task.id)" title="Delete task">🗑️</button>
+            </div>
+          </div>
+
+          <div class="task-metadata">
+            <span class="task-meta-item priority-badge" [class]="'priority-' + task.priority">
+              <span class="priority-icon">{{ task.priority === 'high' ? '🔴' : task.priority === 'medium' ? '🟠' : '🟢' }}</span>
+              {{ task.priority | uppercase }} Priority
+            </span>
+            <span class="task-meta-item due-date" [class.overdue]="isOverdue(task.dueDate) && !task.completed">
+              {{ task.dueDate | dateFormat }}
+            </span>
+            <span class="task-meta-item status-badge" [class.completed]="task.completed">
+              {{ task.completed | statusLabel }}
+            </span>
+            <span class="task-meta-item created-date">Created: {{ task.createdAt | dateFormat:'short' }}</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <footer class="app-footer">
+    <p>Task Tracker Pro &copy; 2026 | Built with Angular | <a href="https://github.com/melakunet/AngularApp2" target="_blank">View on GitHub</a></p>
+  </footer>
+</div>
