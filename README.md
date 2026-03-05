@@ -1,4 +1,10 @@
-# AngularApp2
+# Task Tracker Pro - Angular Assignment 2
+
+A task management application built with Angular, demonstrating services with RxJS observables, custom pipes, and custom directives.
+
+**Course**: MWD4B (Angular Development)  
+**Student**: Etefworkie Melaku  
+**Date**: March 5, 2026
 
 This project was generated using [Angular CLI](https://github.com/angular/angular-cli) version 19.2.21.
 

@@ -1,12 +1,8 @@
 import { Pipe, PipeTransform } from '@angular/core';
 
 /**
- * StatusLabelPipe - Custom pipe for transforming task completion status
- * Converts boolean completed status into user-friendly labels
- * Demonstrates data transformation pattern from Chapter 4
- * 
+ * StatusLabelPipe transforms boolean completion status into labels
  * Usage: {{ task.completed | statusLabel }}
- * Output: "✅ COMPLETED" or "🕒 IN PROGRESS"
  */
 @Pipe({
   name: 'statusLabel',
@@ -14,13 +10,7 @@ import { Pipe, PipeTransform } from '@angular/core';
 })
 export class StatusLabelPipe implements PipeTransform {
   
-  /**
-   * Transform boolean completion status into a labeled string
-   * 
-   * @param value - Boolean completion status
-   * @param style - Optional style ('emoji', 'text', or 'badge')
-   * @returns Formatted status label
-   */
+  /** Transform boolean status into a labeled string */
   transform(value: boolean, style: 'emoji' | 'text' | 'badge' = 'emoji'): string {
     switch (style) {
       case 'emoji':

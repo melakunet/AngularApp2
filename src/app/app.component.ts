@@ -3,7 +3,6 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Observable, Subscription } from 'rxjs';
 
-// Import custom services, pipes, and directives
 import { TaskService, Task } from './services/task.service';
 import { DateFormatPipe } from './pipes/date-format.pipe';
 import { TruncateTextPipe } from './pipes/truncate-text.pipe';
@@ -12,14 +11,7 @@ import { PriorityHighlightDirective } from './directives/priority-highlight.dire
 import { CompletedStrikethroughDirective } from './directives/completed-strikethrough.directive';
 
 /**
- * AppComponent - Root component of the Task Tracker application
- * Demonstrates:
- * - Dependency injection of TaskService
- * - Observable subscription patterns (both async pipe and manual)
- * - Integration of custom pipes and directives
- * - Reactive state management
- * 
- * Following patterns from Learning Angular Ch. 4-6
+ * AppComponent is the root component of the Task Tracker application
  */
 @Component({
   selector: 'app-root',
@@ -37,64 +29,33 @@ import { CompletedStrikethroughDirective } from './directives/completed-striketh
   styleUrl: './app.component.css'
 })
 export class AppComponent implements OnInit, OnDestroy {
-  // Application title
   title = 'Task Tracker Pro';
 
-  /**
-   * Observable stream of tasks from the service
-   * Used with async pipe in template for automatic subscription management
-   * This demonstrates the reactive pattern from Chapter 6
-   */
+  /** Observable stream of tasks from the service */
   tasks$: Observable<Task[]>;
 
-  /**
-   * Alternative: Manual subscription for demonstration
-   * This array is populated by manually subscribing to tasks$
-   * Shows both subscription patterns as per assignment requirements
-   */
+  /** Task list populated by manual subscription */
   taskList: Task[] = [];
 
-  /**
-   * Subscription reference for manual subscription management
-   * Important for proper cleanup in ngOnDestroy to prevent memory leaks
-   */
+  /** Subscription reference for cleanup */
   private taskSubscription?: Subscription;
 
-  /**
-   * Form model properties for adding new tasks
-   * Bound to form inputs using ngModel (two-way data binding)
-   */
+  /** Form model properties */
   newTaskTitle: string = '';
   newTaskDescription: string = '';
   newTaskDueDate: string = '';
   newTaskPriority: 'high' | 'medium' | 'low' = 'medium';
 
-  /**
-   * UI state properties
-   */
+  /** UI state properties */
   showAddForm: boolean = false;
   filterCompleted: boolean = false;
 
-  /**
-   * Constructor with dependency injection
-   * TaskService is injected as a singleton (provided in root)
-   * This demonstrates proper use of Angular's DI system (Chapter 5)
-   * 
-   * @param taskService - Injected TaskService instance
-   */
   constructor(private taskService: TaskService) {
-    // Initialize the observable stream
     this.tasks$ = this.taskService.tasks$;
   }
 
-  /**
-   * OnInit lifecycle hook
-   * Called after component initialization
-   * Sets up manual subscription to demonstrate subscription patterns
-   */
+  /** Initialize component and set up manual subscription */
   ngOnInit(): void {
-    // Manual subscription example (as per assignment requirements)
-    // This demonstrates explicit subscription management
     this.taskSubscription = this.tasks$.subscribe({
       next: (tasks) => {
         this.taskList = tasks;
@@ -109,33 +70,21 @@ export class AppComponent implements OnInit, OnDestroy {
     });
   }
 
-  /**
-   * OnDestroy lifecycle hook
-   * Called before component is destroyed
-   * CRITICAL: Unsubscribe from manual subscriptions to prevent memory leaks
-   * This demonstrates proper subscription cleanup (Chapter 6)
-   */
+  /** Clean up subscriptions to prevent memory leaks */
   ngOnDestroy(): void {
-    // Unsubscribe from manual subscription to prevent memory leaks
     if (this.taskSubscription) {
       this.taskSubscription.unsubscribe();
       console.log('Task subscription cleaned up');
     }
   }
 
-  /**
-   * Add a new task using the service
-   * Validates input and delegates to TaskService
-   * Service handles state update and notifies all subscribers
-   */
+  /** Add a new task */
   addTask(): void {
-    // Validate required fields
     if (!this.newTaskTitle.trim() || !this.newTaskDueDate) {
       alert('Please fill in all required fields');
       return;
     }
 
-    // Call service method to add task
     this.taskService.addTask(
       this.newTaskTitle,
       this.newTaskDescription,
@@ -143,37 +92,23 @@ export class AppComponent implements OnInit, OnDestroy {
       this.newTaskPriority
     );
 
-    // Reset form
     this.resetForm();
     this.showAddForm = false;
   }
 
-  /**
-   * Toggle task completion status
-   * Delegates to service which updates state reactively
-   * 
-   * @param taskId - ID of task to toggle
-   */
+  /** Toggle task completion status */
   toggleTaskCompletion(taskId: number): void {
     this.taskService.toggleTask(taskId);
   }
 
-  /**
-   * Delete a task
-   * Confirms with user before deletion
-   * 
-   * @param taskId - ID of task to delete
-   */
+  /** Delete a task with confirmation */
   deleteTask(taskId: number): void {
     if (confirm('Are you sure you want to delete this task?')) {
       this.taskService.deleteTask(taskId);
     }
   }
 
-  /**
-   * Reset the add task form
-   * Clears all form fields
-   */
+  /** Reset the add task form */
   resetForm(): void {
     this.newTaskTitle = '';
     this.newTaskDescription = '';
@@ -181,9 +116,7 @@ export class AppComponent implements OnInit, OnDestroy {
     this.newTaskPriority = 'medium';
   }
 
-  /**
-   * Toggle the visibility of the add task form
-   */
+  /** Toggle the visibility of the add task form */
   toggleAddForm(): void {
     this.showAddForm = !this.showAddForm;
     if (!this.showAddForm) {
@@ -191,13 +124,7 @@ export class AppComponent implements OnInit, OnDestroy {
     }
   }
 
-  /**
-   * Get filtered tasks based on completion status
-   * Demonstrates observable transformation (could use RxJS operators)
-   * 
-   * @param tasks - Array of tasks to filter
-   * @returns Filtered array of tasks
-   */
+  /** Get filtered tasks based on completion status */
   getFilteredTasks(tasks: Task[]): Task[] {
     if (!this.filterCompleted) {
       return tasks;
@@ -205,13 +132,7 @@ export class AppComponent implements OnInit, OnDestroy {
     return tasks.filter(task => !task.completed);
   }
 
-  /**
-   * Check if a task is overdue
-   * Used for conditional styling and display logic
-   * 
-   * @param dueDate - Task due date
-   * @returns True if task is overdue
-   */
+  /** Check if a task is overdue */
   isOverdue(dueDate: Date): boolean {
     const today = new Date();
     today.setHours(0, 0, 0, 0);
@@ -220,24 +141,12 @@ export class AppComponent implements OnInit, OnDestroy {
     return due < today;
   }
 
-  /**
-   * Get count of completed tasks
-   * Template helper method
-   * 
-   * @param tasks - Array of tasks
-   * @returns Count of completed tasks
-   */
+  /** Get count of completed tasks */
   getCompletedCount(tasks: Task[]): number {
     return tasks.filter(task => task.completed).length;
   }
 
-  /**
-   * Get count of pending tasks
-   * Template helper method
-   * 
-   * @param tasks - Array of tasks
-   * @returns Count of pending tasks
-   */
+  /** Get count of pending tasks */
   getPendingCount(tasks: Task[]): number {
     return tasks.filter(task => !task.completed).length;
   }
