@@ -31,11 +31,8 @@ import { CompletedStrikethroughDirective } from './directives/completed-striketh
 export class AppComponent implements OnInit, OnDestroy {
   title = 'Task Tracker Pro';
 
-  /** Observable stream of tasks from the service */
-  tasks$: Observable<Task[]>;
-
-  /** Task list populated by manual subscription */
-  taskList: Task[] = [];
+  tasks$: Observable<Task[]> | undefined;
+  tasks: Task[] = [];
 
   /** Subscription reference for cleanup */
   private taskSubscription?: Subscription;
@@ -50,22 +47,21 @@ export class AppComponent implements OnInit, OnDestroy {
   showAddForm: boolean = false;
   filterCompleted: boolean = false;
 
-  constructor(private taskService: TaskService) {
-    this.tasks$ = this.taskService.tasks$;
+  constructor(private taskService: TaskService) { }
+
+  /** Initialize component and load tasks */
+  ngOnInit(): void {
+    this.getTasks();
   }
 
-  /** Initialize component and set up manual subscription */
-  ngOnInit(): void {
+  private getTasks(): void {
+    this.tasks$ = this.taskService.getTasks();
     this.taskSubscription = this.tasks$.subscribe({
       next: (tasks) => {
-        this.taskList = tasks;
-        console.log('Tasks updated:', tasks.length);
+        this.tasks = tasks;
       },
       error: (error) => {
         console.error('Error loading tasks:', error);
-      },
-      complete: () => {
-        console.log('Task stream completed');
       }
     });
   }
@@ -74,7 +70,6 @@ export class AppComponent implements OnInit, OnDestroy {
   ngOnDestroy(): void {
     if (this.taskSubscription) {
       this.taskSubscription.unsubscribe();
-      console.log('Task subscription cleaned up');
     }
   }
 
@@ -92,6 +87,7 @@ export class AppComponent implements OnInit, OnDestroy {
       this.newTaskPriority
     );
 
+    this.getTasks();
     this.resetForm();
     this.showAddForm = false;
   }
@@ -99,12 +95,14 @@ export class AppComponent implements OnInit, OnDestroy {
   /** Toggle task completion status */
   toggleTaskCompletion(taskId: number): void {
     this.taskService.toggleTask(taskId);
+    this.getTasks();
   }
 
   /** Delete a task with confirmation */
   deleteTask(taskId: number): void {
     if (confirm('Are you sure you want to delete this task?')) {
       this.taskService.deleteTask(taskId);
+      this.getTasks();
     }
   }
 

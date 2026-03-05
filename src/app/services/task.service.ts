@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { BehaviorSubject, Observable } from 'rxjs';
+import { Observable, of } from 'rxjs';
 
 /**
  * Task interface defines the structure of a task object
@@ -21,22 +21,8 @@ export interface Task {
   providedIn: 'root'
 })
 export class TaskService {
-  /** In-memory storage for tasks */
-  private tasks: Task[] = [];
-
-  /** BehaviorSubject manages task state and notifies subscribers of changes */
-  private taskSubject = new BehaviorSubject<Task[]>([]);
-
-  /** Observable stream that components subscribe to for task updates */
-  tasks$: Observable<Task[]> = this.taskSubject.asObservable();
-
-  constructor() {
-    this.initializeSampleTasks();
-  }
-
-  /** Initialize with sample tasks */
-  private initializeSampleTasks(): void {
-    const sampleTasks: Task[] = [
+  
+  private tasks: Task[] = [
       {
         id: 1,
         title: 'Complete Angular Assignment',
@@ -64,10 +50,15 @@ export class TaskService {
         completed: true,
         createdAt: new Date('2026-02-28')
       }
-    ];
+  ];
 
-    this.tasks = sampleTasks;
-    this.taskSubject.next(this.tasks);
+  constructor() { }
+
+  /**
+   * Get all tasks as an Observable
+   */
+  getTasks(): Observable<Task[]> {
+    return of(this.tasks);
   }
 
   /**
@@ -84,36 +75,37 @@ export class TaskService {
       createdAt: new Date()
     };
 
-    this.tasks = [...this.tasks, newTask];
-    this.taskSubject.next(this.tasks);
+    this.tasks.push(newTask);
   }
 
   /**
    * Toggle the completed status of a task
    */
   toggleTask(id: number): void {
-    this.tasks = this.tasks.map(task =>
-      task.id === id ? { ...task, completed: !task.completed } : task
-    );
-    this.taskSubject.next(this.tasks);
+    const task = this.tasks.find(t => t.id === id);
+    if (task) {
+      task.completed = !task.completed;
+    }
   }
 
   /**
    * Delete a task from the collection
    */
   deleteTask(id: number): void {
-    this.tasks = this.tasks.filter(task => task.id !== id);
-    this.taskSubject.next(this.tasks);
+    const index = this.tasks.findIndex(t => t.id === id);
+    if (index !== -1) {
+      this.tasks.splice(index, 1);
+    }
   }
 
   /**
    * Update an existing task with partial updates
    */
   updateTask(id: number, updates: Partial<Task>): void {
-    this.tasks = this.tasks.map(task =>
-      task.id === id ? { ...task, ...updates } : task
-    );
-    this.taskSubject.next(this.tasks);
+    const task = this.tasks.find(t => t.id === id);
+    if (task) {
+      Object.assign(task, updates);
+    }
   }
 
   /**
