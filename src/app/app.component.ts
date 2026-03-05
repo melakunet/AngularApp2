@@ -152,7 +152,7 @@ export class AppComponent implements OnInit, OnDestroy {
   }
 
   /** Check if a task is overdue */
-  isOverdue(dueDate: Date): boolean {
+  isOverdue(dueDate: Date | string): boolean {
     const today = new Date();
     today.setHours(0, 0, 0, 0);
     const due = new Date(dueDate);
