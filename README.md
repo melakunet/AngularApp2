@@ -8,19 +8,23 @@ A task management application built with Angular, demonstrating services with Rx
 
 ## Running the Application
 
-This app requires both backend and frontend servers:
+This app uses **JSON Server** as a mock REST API backend for data persistence. Tasks are stored in `db.json` and persist across browser refreshes.
 
-**Terminal 1 - Start Backend:**
+Start both servers to run the app:
+
+**Terminal 1 - Start Backend (JSON Server on port 3000):**
 ```bash
 npm run api
 ```
 
-**Terminal 2 - Start Frontend:**
+**Terminal 2 - Start Frontend (Angular on port 4200):**
 ```bash
 ng serve
 ```
 
 Then open: **http://localhost:4200/**
+
+The frontend communicates with the backend via HTTP requests to save, update, and delete tasks.
 
 ## Building
 
