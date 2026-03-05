@@ -416,3 +416,11 @@
 .task-completed {
   opacity: 0.6;
 }
+
+/* Footer credit */
+.footer-credit {
+  margin-top: 0.5rem;
+  font-size: 0.85rem;
+  color: rgba(255, 255, 255, 0.8);
+  font-style: italic;
+}
