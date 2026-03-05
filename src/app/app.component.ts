@@ -85,24 +85,45 @@ export class AppComponent implements OnInit, OnDestroy {
       this.newTaskDescription,
       new Date(this.newTaskDueDate),
       this.newTaskPriority
-    );
-
-    this.getTasks();
-    this.resetForm();
-    this.showAddForm = false;
+    ).subscribe({
+      next: () => {
+        this.getTasks();
+        this.resetForm();
+        this.showAddForm = false;
+      },
+      error: (error) => {
+        console.error('Error adding task:', error);
+        alert('Failed to add task. Make sure JSON Server is running!');
+      }
+    });
   }
 
   /** Toggle task completion status */
   toggleTaskCompletion(taskId: number): void {
-    this.taskService.toggleTask(taskId);
-    this.getTasks();
+    const task = this.tasks.find(t => t.id === taskId);
+    if (task) {
+      this.taskService.toggleTask(taskId, !task.completed).subscribe({
+        next: () => {
+          this.getTasks();
+        },
+        error: (error) => {
+          console.error('Error toggling task:', error);
+        }
+      });
+    }
   }
 
   /** Delete a task with confirmation */
   deleteTask(taskId: number): void {
     if (confirm('Are you sure you want to delete this task?')) {
-      this.taskService.deleteTask(taskId);
-      this.getTasks();
+      this.taskService.deleteTask(taskId).subscribe({
+        next: () => {
+          this.getTasks();
+        },
+        error: (error) => {
+          console.error('Error deleting task:', error);
+        }
+      });
     }
   }
 

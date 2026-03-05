@@ -1,0 +1,31 @@
+{
+  "tasks": [
+    {
+      "id": 1,
+      "title": "Complete Angular Assignment",
+      "description": "Build a task tracker app using pipes, directives, services, and observables",
+      "dueDate": "2026-03-06",
+      "priority": "high",
+      "completed": false,
+      "createdAt": "2026-03-01"
+    },
+    {
+      "id": 2,
+      "title": "Study RxJS Patterns",
+      "description": "Review reactive patterns and observable subscription/unsubscription techniques",
+      "dueDate": "2026-03-05",
+      "priority": "medium",
+      "completed": false,
+      "createdAt": "2026-03-02"
+    },
+    {
+      "id": 3,
+      "title": "Read Angular Book Chapter 4-6",
+      "description": "Complete reading of chapters covering services, dependency injection, and reactive programming",
+      "dueDate": "2026-03-03",
+      "priority": "low",
+      "completed": true,
+      "createdAt": "2026-02-28"
+    }
+  ]
+}

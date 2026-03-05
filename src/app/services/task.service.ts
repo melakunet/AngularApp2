@@ -1,5 +1,6 @@
 import { Injectable } from '@angular/core';
-import { Observable, of } from 'rxjs';
+import { HttpClient } from '@angular/common/http';
+import { Observable } from 'rxjs';
 
 /**
  * Task interface defines the structure of a task object
@@ -8,110 +9,73 @@ export interface Task {
   id: number;
   title: string;
   description: string;
-  dueDate: Date;
+  dueDate: Date | string;
   priority: 'high' | 'medium' | 'low';
   completed: boolean;
-  createdAt: Date;
+  createdAt: Date | string;
 }
 
 /**
- * TaskService manages task data using RxJS Observables for reactive state management
+ * TaskService manages task data using HTTP requests to JSON Server
  */
 @Injectable({
   providedIn: 'root'
 })
 export class TaskService {
   
-  private tasks: Task[] = [
-      {
-        id: 1,
-        title: 'Complete Angular Assignment',
-        description: 'Build a task tracker app using pipes, directives, services, and observables',
-        dueDate: new Date('2026-03-06'),
-        priority: 'high',
-        completed: false,
-        createdAt: new Date('2026-03-01')
-      },
-      {
-        id: 2,
-        title: 'Study RxJS Patterns',
-        description: 'Review reactive patterns and observable subscription/unsubscription techniques',
-        dueDate: new Date('2026-03-05'),
-        priority: 'medium',
-        completed: false,
-        createdAt: new Date('2026-03-02')
-      },
-      {
-        id: 3,
-        title: 'Read Angular Book Chapter 4-6',
-        description: 'Complete reading of chapters covering services, dependency injection, and reactive programming',
-        dueDate: new Date('2026-03-03'),
-        priority: 'low',
-        completed: true,
-        createdAt: new Date('2026-02-28')
-      }
-  ];
+  private apiUrl = 'http://localhost:3000/tasks';
 
-  constructor() { }
+  constructor(private http: HttpClient) { }
 
   /**
-   * Get all tasks as an Observable
+   * Get all tasks from the server
    */
   getTasks(): Observable<Task[]> {
-    return of(this.tasks);
+    return this.http.get<Task[]>(this.apiUrl);
   }
 
   /**
-   * Add a new task to the collection
+   * Add a new task to the server
    */
-  addTask(title: string, description: string, dueDate: Date, priority: 'high' | 'medium' | 'low'): void {
+  addTask(title: string, description: string, dueDate: Date, priority: 'high' | 'medium' | 'low'): Observable<Task> {
     const newTask: Task = {
       id: Date.now(),
       title,
       description,
-      dueDate,
+      dueDate: dueDate.toISOString().split('T')[0],
       priority,
       completed: false,
-      createdAt: new Date()
+      createdAt: new Date().toISOString().split('T')[0]
     };
 
-    this.tasks.push(newTask);
+    return this.http.post<Task>(this.apiUrl, newTask);
   }
 
   /**
    * Toggle the completed status of a task
    */
-  toggleTask(id: number): void {
-    const task = this.tasks.find(t => t.id === id);
-    if (task) {
-      task.completed = !task.completed;
-    }
+  toggleTask(id: number, completed: boolean): Observable<Task> {
+    return this.http.patch<Task>(`${this.apiUrl}/${id}`, { completed });
   }
 
   /**
-   * Delete a task from the collection
+   * Delete a task from the server
    */
-  deleteTask(id: number): void {
-    const index = this.tasks.findIndex(t => t.id === id);
-    if (index !== -1) {
-      this.tasks.splice(index, 1);
-    }
+  deleteTask(id: number): Observable<void> {
+    return this.http.delete<void>(`${this.apiUrl}/${id}`);
   }
 
   /**
    * Update an existing task with partial updates
    */
-  updateTask(id: number, updates: Partial<Task>): void {
-    const task = this.tasks.find(t => t.id === id);
-    if (task) {
-      Object.assign(task, updates);
-    }
+  updateTask(id: number, updates: Partial<Task>): Observable<Task> {
+    return this.http.patch<Task>(`${this.apiUrl}/${id}`, updates);
   }
 
   /**
    * Get a single task by ID
    */
-  getTaskById(id: number): Task | undefined {
-    return this.tasks.find(task => task.id === id);
+  getTaskById(id: number): Observable<Task> {
+    return this.http.get<Task>(`${this.apiUrl}/${id}`);
   }
 }
